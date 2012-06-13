@@ -4,5 +4,6 @@ homedirfiles=( .vimrc .zshenv )
 
 for file in $homedirfiles
 do
-  ln -s $file $HOME/$file
+  # TODO why do I need the absolute path of the source?
+  ln -s `pwd`/$file $HOME/$file
 done
