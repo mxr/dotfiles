@@ -110,7 +110,7 @@ match OverLength /\%>80v.\+/
 set nobackup
 
 " Automatically remove trailing whitespace
-"autocmd BufWritePre * :%s/\s\+$//e
+autocmd BufWritePre * :%s/\s\+$//e
 
 " Use the system clipboard
 "set clipboard=autoselect,unnamed,exclude:cons\|linux
