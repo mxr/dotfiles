@@ -71,7 +71,7 @@ zstyle ':completion:*:*:*:users' ignored-patterns \
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 
 zstyle ':completion:*:*:kill:*:processes' command 'ps --forest -A -o pid,user,cmd'
-zstyle ':completion:*:processes-names' command 'ps axho command' 
+zstyle ':completion:*:processes-names' command 'ps axho command'
 
 zstyle ':completion:*:*:killall:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:*:killall:*:processes' command 'ps --forest -A -o pid,user,cmd'
@@ -90,7 +90,7 @@ zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %
 
 # list of completers to use
 #zstyle ':completion:*::::' completer _expand _complete _ignored _approximate
-    
+
 # insert all expansions for expand completer
 zstyle ':completion:*:expand:*' tag-order all-expansions
 
