@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
 
-homedirfiles=( .vimrc .zshenv )
+homedirfiles=( .vimrc )
 
 for file in $homedirfiles
 do
