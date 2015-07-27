@@ -1,0 +1,16 @@
+# bins
+alias vi='vim'
+alias php-strict='php -d error_reporting=E_ALL -a'
+
+# git
+alias gst='git status'
+alias gaa='git add -A'
+alias ga='git add'
+alias gcm='git commit -m'
+alias gpl='git pull'
+alias gps='git push'
+alias gdf='git diff'
+alias glg='git log'
+alias gco='git checkout'
+alias gbr='git branch'
+alias gmg='git merge'
