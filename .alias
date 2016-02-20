@@ -1,6 +1,6 @@
 # bins
 alias vi='vim'
-alias php-strict='php -d error_reporting=E_ALL -a'
+alias php-all='php -d error_reporting=E_ALL -a'
 
 # git
 alias gst='git status'
