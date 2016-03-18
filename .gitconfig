@@ -1,0 +1,19 @@
+[user]
+	name = Max Rozentsveyg
+[filter "lfs"]
+	clean = git lfs clean %f
+	smudge = git lfs smudge %f
+	required = true
+[branch]
+	autosetupmerge = always
+[core]
+	mergeoptions = --no-ff
+	mergeoptions = --no-edit
+[rerere]
+	enabled = true
+[alias]
+	accept-theirs = "!f() { git checkout --theirs -- \"${@:-.}\"; git add -u \"${@:-.}\"; }; f"
+	accept-ours = "!f() { git checkout --ours -- \"${@:-.}\"; git add -u \"${@:-.}\"; }; f"
+	cleanup = "!git remote prune origin && git gc && git stash clear"
+	branch-name = "!git rev-parse --abbrev-ref HEAD"
+	rename-tag = "!sh -c 'set -e;git tag $2 $1; git tag -d $1;git push origin :refs/tags/$1;git push --tags' -"
