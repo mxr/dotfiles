@@ -1,21 +1,21 @@
 # bins
 alias vi='vim'
 alias php-all='php -d error_reporting=E_ALL -a'
+alias where='which'
 
 # git
-alias gst='git status'
-alias gaa='git add -A'
-alias ga='git add'
-alias gcm='git commit -m'
-alias gpl='git pull'
-alias gps='git push'
-alias gdf='git diff'
+alias gam='git commit -am'
 alias gco='git checkout'
-alias gbr='git branch'
-alias gmg='git merge'
+alias gconf='git diff --name-only --diff-filter=U'
+alias gfup='git add . && git commit --amend --no-edit'
+alias gpo='git push origin $(git branch-name)'
+alias grb='git fetch origin master && git rebase origin/master'
 alias gsm='git fetch origin master && git merge origin/master --no-edit'
 
 # useful functions
+alias chomp='python -c "import os, sys; f = open(sys.argv[1], \"r+\"); f.seek(-1, os.SEEK_END); f.truncate(); f.close()"'
+alias ip='python -c "import socket; print([(s.connect((\'8.8.8.8\', 80)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1])"'
+alias now='python -c "import datetime; print datetime.datetime.utcnow().isoformat()"'
+alias nowms='python -c "from datetime import datetime, timedelta; print int((datetime.now() - datetime.fromtimestamp(0)).total_seconds() * 1000)"'
 alias urldecode='python -c "import sys, urllib as ul; print ul.unquote_plus(sys.argv[1])"'
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1])"'
-alias ip='python -c "import socket; print([(s.connect((\"8.8.8.8\", 80)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1])"'
