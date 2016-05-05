@@ -12,8 +12,10 @@
 [rerere]
 	enabled = true
 [alias]
-	accept-theirs = "!f() { git checkout --theirs -- \"${@:-.}\"; git add -u \"${@:-.}\"; }; f"
 	accept-ours = "!f() { git checkout --ours -- \"${@:-.}\"; git add -u \"${@:-.}\"; }; f"
-	cleanup = "!git remote prune origin && git gc && git stash clear"
+	accept-theirs = "!f() { git checkout --theirs -- \"${@:-.}\"; git add -u \"${@:-.}\"; }; f"
 	branch-name = "!git rev-parse --abbrev-ref HEAD"
+	cleanup = "!git remote prune origin && git gc && git stash clear"
+	rbr = "!git branch | grep -v master | xargs git branch -D"
 	rename-tag = "!sh -c 'set -e;git tag $2 $1; git tag -d $1;git push origin :refs/tags/$1;git push --tags' -"
+	up = "!git pull --no-edit origin $(git branch-name)"
