@@ -1,6 +1,7 @@
 # bins
 alias vi='vim'
 alias php-all='php -d error_reporting=E_ALL -a'
+alias pyshell='python -i -c "from datetime import datetime, timedelta; from pytz import UTC"'
 alias where='which'
 
 # git
@@ -19,3 +20,4 @@ alias now='python -c "import datetime; print datetime.datetime.utcnow().isoforma
 alias nowms='python -c "from datetime import datetime, timedelta; print int((datetime.now() - datetime.fromtimestamp(0)).total_seconds() * 1000)"'
 alias urldecode='python -c "import sys, urllib as ul; print ul.unquote_plus(sys.argv[1])"'
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1])"'
+alias venvup='source venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt && deactivate'
