@@ -1,0 +1,8 @@
+[
+  {
+    "command": "copy_path",
+    "keys": [
+      "shift+super+c"
+    ]
+  }
+]
