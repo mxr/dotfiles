@@ -1,7 +1,7 @@
 # bins
 alias vi='vim'
 alias php-all='php -d error_reporting=E_ALL -a'
-alias pyshell='python -i -c "from datetime import datetime, timedelta; from pytz import UTC; import json"'
+alias pyshell='python -i -c "from datetime import datetime, timedelta; import json, dateutil.parser, pytz, re"'
 alias where='which'
 
 # git
