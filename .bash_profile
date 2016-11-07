@@ -16,3 +16,17 @@ function parse_git_branch {
     git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/[\1$(parse_git_dirty)] /"
 }
 export PS1="\w \$(parse_git_branch)$ "
+
+# Convenience methods for git
+function gsm {
+    # sm == sync merge
+    _git_update "merge master --no-edit"
+}
+function grb {
+    # rb == rebase
+    _git_update "rebase master"
+}
+function _git_update {
+    old_branch=`git branch-name`
+    git checkout master && git pull && git checkout $old_branch && git $1
+}
