@@ -10,8 +10,6 @@ alias gco='git checkout'
 alias gconf='git diff --name-only --diff-filter=U'
 alias gfup='git add . && git commit --amend --no-edit'
 alias gpo='git push origin $(git branch-name)'
-alias grb='git fetch origin master && git rebase origin/master'
-alias gsm='git fetch origin master && git merge origin/master --no-edit'
 
 # useful functions
 alias chomp='python -c "import os, sys; f = open(sys.argv[1], \"r+\"); f.seek(-1, os.SEEK_END); f.truncate(); f.close()"'
