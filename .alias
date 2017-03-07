@@ -5,10 +5,12 @@ alias pyshell='python -i -c "from datetime import datetime, timedelta; import js
 alias where='which'
 
 # git
-alias gam='git commit -am'
+alias gac='git add . && git commit --no-edit'
+alias gam='git add . && git commit -am'
 alias gco='git checkout'
 alias gconf='git diff --name-only --diff-filter=U'
 alias gfup='git add . && git commit --amend --no-edit'
+alias gnbr='git checkout master && git pull && git checkout -b '
 alias gpo='git push origin $(git branch-name)'
 
 # useful functions
