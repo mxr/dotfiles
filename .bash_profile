@@ -1,3 +1,5 @@
+source ~/.alias
+
 export PATH="/usr/local/sbin:$PATH" # For homebrew
 
 export HISTCONTROL=ignoredups:erasedups  # no duplicate entries
