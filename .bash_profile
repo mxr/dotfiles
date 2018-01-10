@@ -38,6 +38,13 @@ function _git_update {
     git checkout master && git pull && git checkout $old_branch && git $1
 }
 
+# git autocompletion
+if [ -f ~/.git-completion.bash ]; then
+  . ~/.git-completion.bash
+  
+  __git_complete gco _git_checkout
+fi
+
 # Install/update Python requirements
 function venvup {
     if [ -z $WORKON_HOME ]
