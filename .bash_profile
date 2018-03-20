@@ -104,3 +104,19 @@ epoch_dt = datetime.fromtimestamp(0, tz)
 print('{:.0f}'.format((now_dt - epoch_dt).total_seconds() * 1000))
 """
 }
+
+# Create file(s) nested deep in directories which may not exist
+# See https://github.com/looking-for-a-job/mktouch.sh.cli
+mktouch() {
+    if [ $# -lt 1 ]
+    then
+        echo "Missing argument"
+        return 1
+    fi
+
+    for f in "$@"
+    do
+        mkdir -p -- "$(dirname -- "$f")"
+        touch -- "$f"
+    done
+}
