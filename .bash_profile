@@ -110,7 +110,7 @@ print('{:.0f}'.format((now_dt - epoch_dt).total_seconds() * 1000))
 mktouch() {
     if [ $# -lt 1 ]
     then
-        echo "Missing argument"
+        errcho "Missing argument"
         return 1
     fi
 
