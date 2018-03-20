@@ -83,3 +83,24 @@ function venvup {
     pip install --upgrade pip
     pip install -r $requirements_file
 }
+
+# Get human readable time as ms since epoch (rounded to nearest second)
+# $ nlp-dt-ms now
+# 1521522141000
+function nlp-dt-ms {
+    python3 -c \
+"""
+import sys
+from parsedatetime import Calendar
+from datetime import datetime
+
+from tzlocal import get_localzone
+
+tz = get_localzone()
+
+now_dt = Calendar().parseDT(datetimeString=' '.join(sys.argv[1:]), tzinfo=tz)[0]
+epoch_dt = datetime.fromtimestamp(0, tz)
+
+print('{:.0f}'.format((now_dt - epoch_dt).total_seconds() * 1000))
+"""
+}
