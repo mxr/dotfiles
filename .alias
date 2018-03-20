@@ -21,3 +21,4 @@ alias nowms='python -c "from datetime import datetime, timedelta; print int((dat
 alias urldecode='python -c "import sys, urllib as ul; print ul.unquote_plus(sys.argv[1])"'
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1])"'
 alias venvup='source venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt && deactivate'
+alias webcam-restart="sudo killall AppleCameraAssistant && sudo killall VDCAssistant"
