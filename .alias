@@ -15,10 +15,9 @@ alias gpo='git push origin $(git branch-name)'
 
 # useful functions
 alias chomp='python -c "import os, sys; f = open(sys.argv[1], \"r+\"); f.seek(-1, os.SEEK_END); f.truncate(); f.close()"'
+alias errcho='>&2 echo'
 alias ip='python -c "import socket; print([(s.connect((\'8.8.8.8\', 80)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1])"'
 alias now='python -c "import datetime; print datetime.datetime.utcnow().isoformat()"'
-alias nowms='python -c "from datetime import datetime, timedelta; print int((datetime.now() - datetime.fromtimestamp(0)).total_seconds() * 1000)"'
 alias urldecode='python -c "import sys, urllib as ul; print ul.unquote_plus(sys.argv[1])"'
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1])"'
-alias venvup='source venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt && deactivate'
 alias webcam-restart="sudo killall AppleCameraAssistant && sudo killall VDCAssistant"
