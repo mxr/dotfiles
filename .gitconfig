@@ -2,13 +2,13 @@
 	name = Max Rozentsveyg
 [filter "lfs"]
 	clean = git lfs clean %f
-	smudge = git lfs smudge %f
 	required = true
+	smudge = git lfs smudge %f
 [branch]
 	autosetupmerge = always
 [core]
-	mergeoptions = --no-ff
 	mergeoptions = --no-edit
+	mergeoptions = --no-ff
 [rerere]
 	enabled = true
 [alias]
@@ -19,3 +19,4 @@
 	rbr = "!git branch | grep -v master | xargs git branch -D"
 	rename-tag = "!sh -c 'set -e;git tag $2 $1; git tag -d $1;git push origin :refs/tags/$1;git push --tags' -"
 	up = "!git pull --no-edit origin $(git branch-name)"
+	sha = "!printf '%s' $(git rev-parse HEAD)"
