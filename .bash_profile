@@ -29,15 +29,25 @@ function gsm {
     # sm == sync merge
     _git_update "merge master --no-edit"
 }
+function gsmao { 
+    # smao = sync merge + accept ours
+    gsm || git accept-ours && gac
+}
 function grb {
     # rb == rebase
     _git_update "rebase master"
 }
 function _git_update {
-    old_branch=`git branch-name`
+    old_branch=$(git branch-name)
     git checkout master && git pull && git checkout $old_branch && git $1
 }
-
+function gac {
+    git add -u && git commit --no-edit;
+    # hacky retry for pre-commit
+    if [ $? -ne 0 ]; then
+        git add -u && git commit --no-edit;
+    fi
+}
 # git autocompletion
 if [ -f ~/.git-completion.bash ]; then
   . ~/.git-completion.bash
