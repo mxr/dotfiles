@@ -24,36 +24,92 @@ function parse_git_branch {
 }
 export PS1="\w \$(parse_git_branch)$ "
 
-# Convenience methods for git
+## Convenience methods for git
+## GIT {
+
 function gsm {
-    # sm == sync merge
-    _git_update "merge master --no-edit"
+  # sm == sync merge
+  _git_update "merge master --no-edit" || gconf
 }
-function gsmao { 
-    # smao = sync merge + accept ours
-    gsm || git accept-ours && gac
+function gsmao {
+  # smf = sync merge accept-ours
+  gsm || git accept-ours && gac
+}
+function gsm-all {
+  # gsm all branches
+
+  OLD_BRANCH=$(git branch-name)
+  git checkout master
+  git pull
+
+  for b in $(git branch | tr -d '*' | grep -v master)
+  do
+    gco "$b"
+    git merge master --no-edit
+    gpo
+  done
+
+  gco "$OLD_BRANCH"
 }
 function grb {
-    # rb == rebase
-    _git_update "rebase master"
+  # rb == rebase
+  _git_update "rebase master"
 }
 function _git_update {
-    old_branch=$(git branch-name)
-    git checkout master && git pull && git checkout $old_branch && git $1
+  # pull the latest master and perform what's in $1 upon this branch
+
+  old_branch=`git branch-name`
+  git checkout master && git pull && git checkout $old_branch && git $1
+}
+function gam {
+  # add changes and commit them. runs twice to bluntly
+  # accept any pre-commit changes
+
+  git add -u && git commit -m "$*"
+  if [ $? -ne 0 ]
+  then
+    git add -u && git commit -m "$*"
+  fi
 }
 function gac {
-    git add -u && git commit --no-edit;
-    # hacky retry for pre-commit
-    if [ $? -ne 0 ]; then
-        git add -u && git commit --no-edit;
-    fi
+  # adds changes and commits without editing (for example for after
+  # merge conflicts are resolved). runs twice for the same reason as above
+  
+  git add -u && git commit --no-edit
+  if [ $? -ne 0 ]
+  then
+    git add -u && git commit --no-edit
+  fi
 }
-# git autocompletion
+function gnbr {
+  # create new branch
+
+  git stash
+  git checkout master
+  git prune
+  git remote prune origin
+  git pull
+  git stash pop
+  git checkout -b "$1"
+}
+function gbd {
+  # delete a local and remote branch
+
+  git branch -D "$1"
+  git push origin --delete "$1"
+}
+
+# To use this, first
+# cp /usr/local/etc/bash_completion.d/git-completion.bash ~/.git-completion.bash
 if [ -f ~/.git-completion.bash ]; then
   . ~/.git-completion.bash
   
+  # Autocomplete for git aliases
   __git_complete gco _git_checkout
+  __git_complete gbd _git_branch
 fi
+
+## } GIT
 
 # Install/update Python requirements
 function venvup {
