@@ -1,8 +1,14 @@
 [
   {
     "command": "copy_path",
-    "keys": [
-      "shift+super+c"
-    ]
+    "keys": ["shift+super+c"]
+  },
+  {
+    "args": {
+      "overlay": "goto",
+      "text": ":"
+    },
+    "command": "show_overlay",
+    "keys": ["super+l"]
   }
 ]
