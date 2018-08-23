@@ -112,42 +112,12 @@ fi
 ## } GIT
 
 # Install/update Python requirements
-function venvup {
-    if [ -z $WORKON_HOME ]
-    then
-        >&2 echo "WORKON_HOME must be set"
-        return
-    fi
-
-    type virtualenvwrapper &> /dev/null
-    if [ $? -ne 0 ]
-    then
-        >&2 echo "virtualenvwrapper must be installed"
-        return
-    fi
-
-    venv_name=$(basename $(pwd))
-    venv_path=$WORKON_HOME/$venv_name
-
-    if [ ! -e $venv_path ]
-    then
-        mkvirtualenv $venv_name
-    fi
-
-    if [ "$VIRTUAL_ENV" != "$venv_path" ]
-    then
-        workon $venv_name
-    fi
-
-    if [ -e tests/integration/requirements.txt ]
-    then
-        requirements_file="tests/integration/requirements.txt"
-    else
-        requirements_file="requirements.txt"
-    fi
-
-    pip install --upgrade pip
-    pip install -r $requirements_file
+function pyvenv {
+  venv_name="$1"
+  version="$2"
+  pyenv virtualenv "$version" "$venv_name"
+  pyenv activate "$venv_name"
+  pip install -r requirements*.txt
 }
 
 # Get human readable time as ms since epoch (rounded to nearest second)
