@@ -1,10 +1,16 @@
 {
-  "ensure_newline_at_eof_on_save": true,
-  "font_size": 14,
-  "ignored_packages": [
-    "Vintage"
-  ],
-  "translate_tabs_to_spaces": true,
-  "trim_trailing_white_space_on_save": true,
-  "word_wrap": true
+	"WrapPlus.break_long_words": false,
+	"WrapPlus.break_on_hyphens": false,
+	"WrapPlus.wrap_width": 99,
+	"ensure_newline_at_eof_on_save": true,
+	"font_size": 13,
+	"highlight_modified_tabs": true,
+	"ignored_packages":
+	[
+		"RestructuredText",
+		"Vintage"
+	],
+	"translate_tabs_to_spaces": true,
+	"trim_trailing_white_space_on_save": true,
+	"word_wrap": true
 }
