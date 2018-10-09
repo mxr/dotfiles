@@ -132,7 +132,7 @@ function gsm {
   _git_update "merge master --no-edit" || gconf
 }
 function gsmao {
-  # smf = sync merge accept-ours
+  # smao = sync merge accept-ours
   gsm || git accept-ours && gac
 }
 function gsm-all {
