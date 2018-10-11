@@ -126,40 +126,19 @@ export PATH="/usr/local/opt/go@1.10/bin:$PATH"
 export GOPATH=~/src/go
 export PATH=$GOPATH/bin:$PATH
 
-## { GIT
-function gsm {
-  # sm == sync merge
-  _git_update "merge master --no-edit" || gconf
-}
-function gsmao {
-  # smao = sync merge accept-ours
-  gsm || git accept-ours && gac
-}
-function gsm-all {
-  # gsm all branches
-
-  OLD_BRANCH=$(git branch-name)
-  git checkout master
-  git pull
-
-  for b in $(git branch | tr -d '*' | grep -v master)
-  do
-    gco "$b"
-    git merge master --no-edit
-    gpo
-  done
-
-  gco "$OLD_BRANCH"
-}
 function grb {
   # rb == rebase
-  _git_update "rebase master"
+  _git_update master
+  git rebase master
 }
 function _git_update {
-  # pull the latest master and perform what's in $1 upon this branch
+  # pull the latest $1 and go back to the last branch
 
-  old_branch=`git branch-name`
-  git checkout master && git pull && git checkout $old_branch && git $1
+  OLD_BRANCH=$(git branch-name)
+  
+  git checkout "$1"
+  git pull
+  git checkout "$OLD_BRANCH"
 }
 function gam {
   # add changes and commit them. runs twice to bluntly
@@ -199,4 +178,3 @@ function gbd {
   (git branch -D "$1" > /dev/null 2>&1 &)
   (git push origin --delete "$1" > /dev/null 2>&1 &)
 }
-
