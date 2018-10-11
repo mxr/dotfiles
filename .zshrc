@@ -178,3 +178,8 @@ function gbd {
   (git branch -D "$1" > /dev/null 2>&1 &)
   (git push origin --delete "$1" > /dev/null 2>&1 &)
 }
+
+function gpo {
+  git push origin "$(git branch-name)"
+  git github-compare
+}
