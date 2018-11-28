@@ -5,30 +5,9 @@
 	],
 	"installed_packages":
 	[
-		"AutoPEP8",
-		"AutoSoftWrap",
-		"CopyWithLineNumbersReloaded",
-		"Dockerfile Syntax Highlighting",
-		"DocReflow",
-		"Filter Lines",
-		"Google Spell Check",
-		"Highlight",
-		"IDL-Syntax",
-		"Indent XML",
-		"Jinja2",
-		"JsFormat",
-		"Liquid",
-		"LiveReload",
-		"MarkdownPreview",
 		"Package Control",
-		"Package Syncing",
 		"Pretty JSON",
-		"Pretty YAML",
-		"RestructuredText Improved",
-		"SaltStack-related syntax highlighting and snippets",
 		"Select By Regex",
-		"ShellScriptImproved",
-		"SideBarEnhancements",
-		"Wrap Plus"
+		"SingleTrailingNewLine"
 	]
 }
