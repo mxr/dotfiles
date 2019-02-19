@@ -1,17 +1,38 @@
-# git
+# QOL
 alias gco='git checkout'
+alias chrome="open -a 'Google Chrome'"
+alias sshno="ssh -o StrictHostKeyChecking=no"
+
+# (git) print merge conflicts
 alias gconf='git --no-pager diff --name-only --diff-filter=U'
+
+# (git) "git fixup" i.e. add my latest changes to the last commit
 alias gfup='git add -u && git commit --amend --no-edit'
+
+# (git) print tags
 alias tags='git tag -n --sort=-version:refname'
 
+# trim trailing lines
 alias chomp='python -c "import os, sys; f = open(sys.argv[1], \"r+\"); f.seek(-1, os.SEEK_END); f.truncate(); f.close()"'
-alias chrome="open -a 'Google Chrome'"
+
+# my ip
 alias ip='python -c "import socket; print([(s.connect((\"8.8.8.8\", 80)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1])"'
+
+# newlines to spaces
 alias n2s="paste -sd ' ' -"
+
+# current time in ISO-8601
 alias now="date +'%Y-%m-%dT%H:%M:%SZ'"
+
+# remove non-ascii characters
 alias remove-nascii="perl -pi -e 's/[^[:ascii:]]//g'"
-alias sshno="ssh -o StrictHostKeyChecking=no"
+
+# url decode/encode
 alias urldecode='python -c "import sys, urllib as ul; print ul.unquote_plus(sys.argv[1])"'
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1])"'
+
+# restart my webcam when hangouts can't detect it :(
 alias webcam-restart="sudo killall AppleCameraAssistant && sudo killall VDCAssistant"
+
+# holdover from windows
 alias where="which"
