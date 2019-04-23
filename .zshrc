@@ -97,6 +97,10 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# pyenv
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
 # aliases
 source ~/.alias
 
@@ -106,19 +110,43 @@ ZSH_THEME_GIT_PROMPT_SUFFIX=") "
 ZSH_THEME_GIT_PROMPT_DIRTY=" ✗"
 ZSH_THEME_GIT_PROMPT_CLEAN=" ✔"
 function reldir {
-	echo $(realpath --relative-to='/Users/mxr' $(pwd))
+	echo $(realpath --relative-to='/Users/mxr' "$(pwd)")
 }
-PROMPT='${ret_status} %{$fg[cyan]%}~/$(reldir)%{$reset_color%} $(git_prompt_info)'
-
-# pyenv
-export PATH="~/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+PROMPT='${ret_status} %{$fg[cyan]%}~/$(reldir)%{$reset_color%} $(git_prompt_info)$ '
 
 # intellij config
 # https://youtrack.jetbrains.com/issue/IDEA-153536#focus=streamItem-27-2851261-0-0
-bindkey "\e\eOD" backward-word  
-bindkey "\e\eOC" forward-word 
+bindkey "\e\eOD" backward-word
+bindkey "\e\eOC" forward-word
+
+# pip
+function pipup {
+  version=${1:-3.6.5}
+  venv_name=${2:-$(basename $(pwd))}
+
+  # make a venv if need be
+  if [[ -z $VIRTUAL_ENV ]]
+  then
+    pyenv virtualenv "$version" "$venv_name"
+    pyenv activate "$venv_name"
+  fi
+
+  # optimization for installing requirements (pulls in pip-faster)
+  pip install venv-update
+
+  # QOL improvement
+  pip-faster install ipython astpretty
+
+  # libraries have requirements in setup.py
+  [ -e setup.py ] && pip-faster install -e .
+
+  # handles most repo configuration
+  rfiles=('tests/integration/requirements.txt' 'requirements3.txt' 'requirements.txt' 'requirements-dev.txt')
+  for rfile in $rfiles
+  do
+    [ -e $rfile ] && pip-faster install -r <(grep -v pip $rfile)
+  done
+}
 
 # go
 export PATH=$PATH:/usr/local/opt/go@1.10/libexec/bin
@@ -126,6 +154,31 @@ export PATH="/usr/local/opt/go@1.10/bin:$PATH"
 export GOPATH=~/src/go
 export PATH=$GOPATH/bin:$PATH
 
+# git
+function gsm {
+  # sm == sync merge
+  _git_update master
+  git merge master --no-edit || gconf
+}
+function gsmao {
+  # smao = sync merge accept-ours
+   _git_update master
+  git merge master --no-edit || git accept-ours && gac
+}
+function gsm-all {
+  # gsm all branches
+
+  _git_update master
+
+  for b in $(git branch | tr -d '*' | grep -v master)
+  do
+    gco "$b"
+    git merge master --no-edit
+    gpo
+  done
+
+  gco "$OLD_BRANCH"
+}
 function grb {
   # rb == rebase
   _git_update master
@@ -135,7 +188,7 @@ function _git_update {
   # pull the latest $1 and go back to the last branch
 
   OLD_BRANCH=$(git branch-name)
-  
+
   git checkout "$1"
   git pull
   git checkout "$OLD_BRANCH"
@@ -172,6 +225,13 @@ function gnbr {
   git checkout -b "$1"
 }
 
+
+# git squash rebase push
+function gsrp {
+  msg=$(hub pr list -f '%t' -h $(git branch-name))
+  git reset $(git merge-base master HEAD) && gam "$msg" && \grb && gpo --force
+}
+
 function gbd {
   # delete a local and remote branch
 
@@ -180,6 +240,25 @@ function gbd {
 }
 
 function gpo {
-  git push origin "$(git branch-name)"
-  git github-compare
+  git push origin HEAD "$@"
+  url=$(hub pr list -f '%U' -h $(git branch-name))
+  if [[ -z "${url// }" ]]; then
+    git github-compare
+  else
+    echo $url
+  fi
 }
+
+mktouch() {
+  mkdir -p "$(dirname "$1")"
+  touch "$1"
+}
+
+function sha256sum() {
+  openssl sha256 "$@" | awk '{print $2}';
+}
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# use gnu sed instead of regular
+export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
