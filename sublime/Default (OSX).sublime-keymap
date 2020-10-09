@@ -1,7 +1,9 @@
 [
   {
     "command": "copy_path",
-    "keys": ["shift+super+c"]
+    "keys": [
+      "shift+super+c"
+    ]
   },
   {
     "args": {
@@ -9,6 +11,22 @@
       "text": ":"
     },
     "command": "show_overlay",
-    "keys": ["super+l"]
+    "keys": [
+      "super+l"
+    ]
+  },
+  {
+    "command": "deselect",
+    "context": [
+      {
+        "key": "selection_empty",
+        "match_all": true,
+        "operand": false,
+        "operator": "equal"
+      }
+    ],
+    "keys": [
+      "escape"
+    ]
   }
 ]
