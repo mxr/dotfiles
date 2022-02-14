@@ -74,7 +74,7 @@ function gam {
 function gac {
   # adds changes and commits without editing (for example for after
   # merge conflicts are resolved). runs twice for the same reason as above
-  
+
   git add -u && git commit --no-edit
   if [ $? -ne 0 ]
   then
@@ -103,7 +103,7 @@ function gbd {
 # cp /usr/local/etc/bash_completion.d/git-completion.bash ~/.git-completion.bash
 if [ -f ~/.git-completion.bash ]; then
   . ~/.git-completion.bash
-  
+
   # Autocomplete for git aliases
   __git_complete gco _git_checkout
   __git_complete gbd _git_branch
