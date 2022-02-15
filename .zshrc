@@ -258,6 +258,15 @@ function sha256sum() {
   openssl sha256 "$@" | awk '{print $2}';
 }
 
+function decode_qsp {
+    python3 -c """
+from urllib.parse import unquote, parse_qs
+import json
+
+print(json.dumps(parse_qs(unquote('"$1"')), sort_keys=True, indent=2))
+"""
+}
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # use gnu sed instead of regular
