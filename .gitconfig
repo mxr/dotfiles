@@ -20,3 +20,4 @@
 	rename-tag = "!sh -c 'set -e;git tag $2 $1; git tag -d $1;git push origin :refs/tags/$1;git push --tags' -"
 	up = "!git pull --no-edit origin $(git branch-name)"
 	sha = "!printf '%s' $(git rev-parse HEAD)"
+	dbr = !git symbolic-ref refs/remotes/origin/HEAD | sed \"s@^refs/remotes/origin/@@\"
