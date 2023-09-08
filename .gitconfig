@@ -1,5 +1,6 @@
 [user]
-	name = Max Rozentsveyg
+	name = Max R
+	email = mxr@users.noreply.github.com
 [filter "lfs"]
 	clean = git lfs clean %f
 	required = true
@@ -11,6 +12,23 @@
 	mergeoptions = --no-ff
 [rerere]
 	enabled = true
+[init]
+	defaultBranch = main
+[interactive]
+	diffFilter = diff-so-fancy --patch
+[color "diff-highlight"]
+	oldNormal = red bold
+	oldHighlight = reverse red bold
+	newNormal = green bold
+	newHighlight = green bold 22
+[color "diff"]
+	meta = 11
+	frag = magenta bold
+	func = 146 bold
+	commit = yellow bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
 [alias]
 	accept-ours = "!f() { git checkout --ours -- \"${@:-.}\"; git add -u \"${@:-.}\"; }; f"
 	accept-theirs = "!f() { git checkout --theirs -- \"${@:-.}\"; git add -u \"${@:-.}\"; }; f"
@@ -20,4 +38,6 @@
 	rename-tag = "!sh -c 'set -e;git tag $2 $1; git tag -d $1;git push origin :refs/tags/$1;git push --tags' -"
 	up = "!git pull --no-edit origin $(git branch-name)"
 	sha = "!printf '%s' $(git rev-parse HEAD)"
+	db = rev-parse --abbrev-ref origin/HEAD
 	dbr = !git symbolic-ref refs/remotes/origin/HEAD | sed \"s@^refs/remotes/origin/@@\"
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
