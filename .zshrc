@@ -291,6 +291,3 @@ function igdl {
     ~/tmp/venv3.11/bin/instaloader -- "-${part}"
 }
 
-# misc aliases
-alias vlc='/Applications/VLC.app/Contents/MacOS/VLC'
-alias code='/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code'
