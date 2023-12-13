@@ -291,3 +291,6 @@ function igdl {
     ~/tmp/venv3.11/bin/instaloader -- "-${part}"
 }
 
+# aliases
+# marker will find a pattern in the output and put an arrow next to it, using a consistent width
+alias marker='python -c "import re, sys; [print(f'"'{line.rstrip()}{' '*(100-len(line))} <----') if re.search(sys.argv[1], line) else print(line,end='') for line in sys.stdin]"'"'
