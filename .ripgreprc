@@ -1,0 +1,10 @@
+# https://github.com/BurntSushi/ripgrep/blob/56c7ad175ac1326e8d36a880061ca3b0e67ad5ea/GUIDE.md#configuration-file
+
+# Enabled to search pre-commit & other config files
+--hidden
+
+# No need to search git
+--glob=!.git/*
+
+# Case-insensitive if whole pattern is lowercase, case-sensitive if not
+--smart-case

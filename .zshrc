@@ -108,6 +108,9 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 # fzf completions and shortcuts
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# ripgrep config
+export RIPGREP_CONFIG_PATH=~/.ripgreprc
+
 # source highlighting for less
 # brew install source-highlight
 export LESSOPEN="| /usr/local/bin/src-hilite-lesspipe.sh %s"
