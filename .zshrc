@@ -251,17 +251,13 @@ function upgrade_pip_dependencies {
 
   # Upgrade pip dependencies
   echo "Upgrading pip dependencies..."
+  python$ver -m venv ~/tmp/venv"$ver"
   ~/tmp/venv"$ver"/bin/pip install -U pip && \
   ~/tmp/venv"$ver"/bin/pip install -U \
-                    black \
-                    flake8 \
-                    flake8-bugbear \
-                    flake8-comprehensions \
-                    flake8-tidy-imports \
+                    ruff \
                     mypy \
                     pyupgrade \
                     reorder_python_imports \
-                    unimport
 
   # Update the timestamp file
   echo "$current_date_time" > $fname
@@ -271,22 +267,28 @@ function lint {
     ver="$1"
     short_ver=$(echo $ver | tr -d ".")
     upgrade_pip_dependencies $ver
-    ~/tmp/venv$ver/bin/pyupgrade --py$short_ver-plus "${@:2}"
-    ~/tmp/venv$ver/bin/black "${@:2}"
-    ~/tmp/venv$ver/bin/unimport "${@:2}"
     ~/tmp/venv$ver/bin/reorder-python-imports --py$short_ver-plus --add-import 'from __future__ import annotations' "${@:2}"
-    ~/tmp/venv$ver/bin/flake8 --extend-ignore="E203,E501" "${@:2}"
+    ~/tmp/venv$ver/bin/ruff \
+      check \
+      --target-version=py"${short_ver}" \
+      --extend-select=UP,B,A,C4,SIM,TCH \
+      --fix \
+      "${@:2}"
+    ~/tmp/venv$ver/bin/ruff \
+      format \
+      --target-version=py"${short_ver}" \
+      "${@:2}"
     ~/tmp/venv$ver/bin/mypy \
-        --install-types \
-        --check-untyped-defs \
-        --disallow-any-generics \
-        --disallow-incomplete-defs \
-        --disallow-untyped-defs \
-        --no-implicit-optional \
-        --warn-redundant-casts \
-        --warn-unused-ignores \
-        --ignore-missing-import \
-        "${@:2}"
+      --install-types \
+      --check-untyped-defs \
+      --disallow-any-generics \
+      --disallow-incomplete-defs \
+      --disallow-untyped-defs \
+      --no-implicit-optional \
+      --warn-redundant-casts \
+      --warn-unused-ignores \
+      --ignore-missing-import \
+      "${@:2}"
 }
 
 function igdl {
