@@ -1,0 +1,19 @@
+[sqlfluff]
+exclude_rules = ambiguous.column_count, structure.column_order, references.keywords, aliasing.expression
+max_line_length = 120
+
+[sqlfluff:layout:type:comma]
+spacing_before = touch
+line_position = leading
+
+[sqlfluff:indentation]
+indented_joins = false
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = upper
+
+[sqlfluff:rules:references.special_chars]
+additional_allowed_characters = '.'
