@@ -1,5 +1,5 @@
 [sqlfluff]
-exclude_rules = ambiguous.column_count, structure.column_order, references.keywords, aliasing.expression
+exclude_rules = ambiguous.column_count, structure.column_order, references.keywords, aliasing.expression, structure.using, ambiguous.join
 max_line_length = 120
 
 [sqlfluff:layout:type:comma]
