@@ -17,5 +17,15 @@
     "command": "-copyFilePath",
     "key": "cmd+k alt+cmd+c",
     "when": "editorFocus"
+  },
+  {
+    "command": "editor.action.joinLines",
+    "key": "ctrl+shift+j",
+    "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "command": "-editor.action.joinLines",
+    "key": "ctrl+j",
+    "when": "editorTextFocus && !editorReadonly"
   }
 ]
