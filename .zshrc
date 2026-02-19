@@ -291,11 +291,6 @@ function lint {
       "${@:2}"
 }
 
-function igdl {
-    part=$(cut -d'/' -f5 <<< "${1}")
-    ~/tmp/venv3.11/bin/instaloader -- "-${part}"
-}
-
 # aliases
 # marker will find a pattern in the output and put an arrow before it
 alias marker='python3.12 -c "import re, sys; [ print(f'\''---> {line}'\'', end='\'''\'') if re.search(sys.argv[1], line) else print(f'\''     {line}'\'', end='\'''\'') for line in sys.stdin ] "'
