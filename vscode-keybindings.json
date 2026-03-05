@@ -1,31 +1,52 @@
 [
-  {
-    "command": "-workbench.action.terminal.openNativeConsole",
-    "key": "shift+cmd+c",
-    "when": "!terminalFocus"
-  },
-  {
-    "command": "-copyFilePath",
-    "key": "alt+cmd+c",
-    "when": "!editorFocus"
-  },
-  {
-    "command": "copyFilePath",
-    "key": "shift+cmd+c"
-  },
-  {
-    "command": "-copyFilePath",
-    "key": "cmd+k alt+cmd+c",
-    "when": "editorFocus"
-  },
-  {
-    "command": "editor.action.joinLines",
-    "key": "ctrl+shift+j",
-    "when": "editorTextFocus && !editorReadonly"
-  },
-  {
-    "command": "-editor.action.joinLines",
-    "key": "ctrl+j",
-    "when": "editorTextFocus && !editorReadonly"
-  }
+    {
+        "command": "-expandLineSelection",
+        "key": "cmd+l",
+        "when": "textInputFocus"
+    },
+    {
+        "command": "editor.action.joinLines",
+        "key": "ctrl+shift+j",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    {
+        "command": "-editor.action.joinLines",
+        "key": "ctrl+j",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    {
+        "command": "copyFilePath",
+        "key": "shift+cmd+c",
+        "when": "editorFocus"
+    },
+    {
+        "command": "-copyFilePath",
+        "key": "cmd+k alt+cmd+c",
+        "when": "editorFocus"
+    },
+    {
+        "command": "-workbench.action.terminal.openNativeConsole",
+        "key": "shift+cmd+c",
+        "when": "!terminalFocus"
+    },
+    {
+        "command": "copyFilePath",
+        "key": "shift+cmd+c",
+        "when": "!editorFocus"
+    },
+    {
+        "command": "-copyFilePath",
+        "key": "alt+cmd+c",
+        "when": "!editorFocus"
+    },
+    {
+        "command": "editor.action.deleteLines",
+        "key": "cmd+backspace",
+        "when": "textInputFocus && !editorReadonly"
+    },
+    {
+        "command": "-editor.action.deleteLines",
+        "key": "shift+cmd+k",
+        "when": "textInputFocus && !editorReadonly"
+    }
 ]
