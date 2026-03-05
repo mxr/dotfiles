@@ -193,7 +193,10 @@ function grsq {
 unalias gam # oh-my-zsh uses this (https://t.ly/hqOq) but i got used to this function before i used OMZ
 function gam {
     m="$@"
-    git add -u && git commit -m "$m"
+	if ! (git add -u && git commit -m "$m"); then
+		# assume pre-commit changed the file and try again
+		git add -u && git commit -m "$m"
+	fi
 }
 
 # zsh ggp but quiet
