@@ -293,72 +293,72 @@ function lint {
 }
 
 ffmpeg_resize() {
-      local file="$1"
-      local target_size_mb="$2"
+	local file="$1"
+	local target_size_mb="$2"
 
-      if [[ -z "$file" || -z "$target_size_mb" ]]; then
-          echo "Usage: ffmpeg_resize <input_file> <target_size_mb>"
-          return 1
-      fi
+	if [[ -z "$file" || -z "$target_size_mb" ]]; then
+		echo "Usage: ffmpeg_resize <input_file> <target_size_mb>"
+		return 1
+	fi
 
-      if [[ ! -f "$file" ]]; then
-          echo "Error: file not found: $file"
-          return 1
-      fi
+	if [[ ! -f "$file" ]]; then
+		echo "Error: file not found: $file"
+		return 1
+	fi
 
-      if ! [[ "$target_size_mb" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
-          echo "Error: target_size_mb must be a positive number"
-          return 1
-      fi
+	if ! [[ "$target_size_mb" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+		echo "Error: target_size_mb must be a positive number"
+		return 1
+	fi
 
-      if ! command -v ffmpeg >/dev/null 2>&1; then
-          echo "Error: ffmpeg not found in PATH"
-          return 1
-      fi
+	if ! command -v ffmpeg >/dev/null 2>&1; then
+		echo "Error: ffmpeg not found in PATH"
+		return 1
+	fi
 
-      if ! command -v ffprobe >/dev/null 2>&1; then
-          echo "Error: ffprobe not found in PATH"
-          return 1
-      fi
+	if ! command -v ffprobe >/dev/null 2>&1; then
+		echo "Error: ffprobe not found in PATH"
+		return 1
+	fi
 
-      local duration
-      duration="$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$file" 2>/dev/null)"
+	local duration
+	duration="$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$file" 2>/dev/null)"
 
-      local duration_sec
-      duration_sec="$(awk -v d="$duration" 'BEGIN { if (d+0 <= 0) print 0; else if (d == int(d)) print int(d); else print int(d)+1 }')"
-      if [[ "$duration_sec" -le 0 ]]; then
-          echo "Error: could not read valid media duration from: $file"
-          return 1
-      fi
+	local duration_sec
+	duration_sec="$(awk -v d="$duration" 'BEGIN { if (d+0 <= 0) print 0; else if (d == int(d)) print int(d); else print int(d)+1 }')"
+	if [[ "$duration_sec" -le 0 ]]; then
+		echo "Error: could not read valid media duration from: $file"
+		return 1
+	fi
 
-      local target_bits
-      target_bits="$(awk -v mb="$target_size_mb" 'BEGIN { printf "%.0f", mb*1000*1000*8 }')"
+	local target_bits
+	target_bits="$(awk -v mb="$target_size_mb" 'BEGIN { printf "%.0f", mb*1000*1000*8 }')"
 
-      local total_bitrate=$(( target_bits / duration_sec ))
-      local audio_bitrate=128000
-      local min_audio_bitrate=64000
-      local min_video_bitrate=100000
-      local video_bitrate=$(( total_bitrate - audio_bitrate ))
+	local total_bitrate=$((target_bits / duration_sec))
+	local audio_bitrate=128000
+	local min_audio_bitrate=64000
+	local min_video_bitrate=100000
+	local video_bitrate=$((total_bitrate - audio_bitrate))
 
-      if [[ "$video_bitrate" -lt "$min_video_bitrate" ]]; then
-          audio_bitrate="$min_audio_bitrate"
-          video_bitrate=$(( total_bitrate - audio_bitrate ))
-      fi
+	if [[ "$video_bitrate" -lt "$min_video_bitrate" ]]; then
+		audio_bitrate="$min_audio_bitrate"
+		video_bitrate=$((total_bitrate - audio_bitrate))
+	fi
 
-      if [[ "$video_bitrate" -lt "$min_video_bitrate" ]]; then
-          echo "Error: target size too small for duration; cannot keep usable A/V bitrates."
-          echo "       Increase target_size_mb (current: $target_size_mb MB)."
-          return 1
-      fi
+	if [[ "$video_bitrate" -lt "$min_video_bitrate" ]]; then
+		echo "Error: target size too small for duration; cannot keep usable A/V bitrates."
+		echo "       Increase target_size_mb (current: $target_size_mb MB)."
+		return 1
+	fi
 
-      local bufsize=$(( video_bitrate * 2 ))
-      local output="${file%.*}-${target_size_mb}mb.mp4"
+	local bufsize=$((video_bitrate * 2))
+	local output="${file%.*}-${target_size_mb}mb.mp4"
 
-      ffmpeg -i "$file" \
-          -c:v libx264 -b:v "$video_bitrate" -maxrate:v "$video_bitrate" -bufsize:v "$bufsize" \
-          -c:a aac -b:a "$audio_bitrate" \
-          "$output"
-  }
+	ffmpeg -i "$file" \
+		-c:v libx264 -b:v "$video_bitrate" -maxrate:v "$video_bitrate" -bufsize:v "$bufsize" \
+		-c:a aac -b:a "$audio_bitrate" \
+		"$output"
+}
 
 # aliases
 # marker will find a pattern in the output and put an arrow before it
