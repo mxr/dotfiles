@@ -322,14 +322,10 @@ ffmpeg_resize() {
 	fi
 
 	local duration
-	duration="$(
-		ffprobe -v error -show_entries format=duration -of
-		default=noprint_wrappers=1:nokey=1 "$file" 2>/dev/null
-	)"
+	duration="$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$file" 2>/dev/null)"
 
 	local duration_sec
-	duration_sec="$(awk -v d="$duration" 'BEGIN { if (d+0 <= 0) print 0; else if (d == int(d))
-    print int(d); else print int(d)+1 }')"
+	duration_sec="$(awk -v d="$duration" 'BEGIN { if (d+0 <= 0) print 0; else if (d == int(d)) print int(d); else print int(d)+1 }')"
 	if [[ "$duration_sec" -le 0 ]]; then
 		echo "Error: could not read valid media duration from: $file"
 		return 1
