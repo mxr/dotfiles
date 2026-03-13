@@ -1,0 +1,4 @@
+theme = Adventure
+cursor-style = block
+shell-integration-features = no-cursor
+font-feature = -calt, -liga, -dlig
