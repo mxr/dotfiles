@@ -12,6 +12,6 @@ repos:
   - id: pretty-format-yaml
     args: [--autofix]
 - repo: https://github.com/mxr/mirrors-shfmt
-  rev: v3.12.0
+  rev: v3.13.0
   hooks:
   - id: shfmt
