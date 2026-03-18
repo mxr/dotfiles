@@ -360,6 +360,15 @@ ffmpeg_resize() {
 		"$output"
 }
 
+# modify https://github.com/ohmyzsh/ohmyzsh/blob/4daba1431696953a7737c7b64fc46cb05a736282/themes/robbyrussell.zsh-theme to have a newline and separation between prompt and $
+PROMPT='
+[%{$fg[cyan]%}%c%{$reset_color%}$(git_prompt_info)]
+%(?:%{$fg_bold[green]%}$:%{$fg_bold[red]%}$)%{$reset_color%} '
+ZSH_THEME_GIT_PROMPT_PREFIX=" %{$fg_bold[blue]%}git:(%{$fg[red]%}"
+ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[blue]%}) %{$fg[yellow]%}%1{✗%}"
+ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
+
 # aliases
 # marker will find a pattern in the output and put an arrow before it
 alias marker='python3.12 -c "import re, sys; [ print(f'\''---> {line}'\'', end='\'''\'') if re.search(sys.argv[1], line) else print(f'\''     {line}'\'', end='\'''\'') for line in sys.stdin ] "'
