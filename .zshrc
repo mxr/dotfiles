@@ -199,10 +199,10 @@ function gam {
 
 # zsh ggp but quiet
 function ggp() {
-	if [[ "$#" != 0 ]] && [[ "$#" != 1 ]]; then
+	if [[ "$" != 0 ]] && [[ "$" != 1 ]]; then
 		git push --quiet origin "${*}"
 	else
-		[[ "$#" == 0 ]] && local b="$(git_current_branch)"
+		[[ "$" == 0 ]] && local b="$(git_current_branch)"
 		git push --quiet origin "${b:=$1}"
 	fi
 }
