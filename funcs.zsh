@@ -167,4 +167,5 @@ tag() {
 	rm -rf dist build *.egg-info
 	python -m build || return 1
 	python -m twine upload --repository pypi dist/* || return 1
+    gh release create "$tag_name" --generate-notes || return 1
 }
