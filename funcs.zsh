@@ -155,6 +155,7 @@ tag() {
 	git commit -m "$tag_name" || return 1
 	git tag "$tag_name" || return 1
 	git push origin main "refs/tags/$tag_name" || return 1
+	gh release create "$tag_name" --generate-notes || return 1
 
 	[[ "$file_type" == "setup_cfg" ]] || return 0
 
@@ -167,5 +168,4 @@ tag() {
 	rm -rf dist build *.egg-info
 	python -m build || return 1
 	python -m twine upload --repository pypi dist/* || return 1
-	gh release create "$tag_name" --generate-notes || return 1
 }
