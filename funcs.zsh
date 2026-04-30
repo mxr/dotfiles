@@ -169,3 +169,166 @@ tag() {
 	python -m build || return 1
 	python -m twine upload --repository pypi dist/* || return 1
 }
+
+bump() {
+	emulate -L zsh
+	setopt pipefail null_glob
+
+	if [[ $# -ne 2 ]]; then
+		echo "usage: bump <lib> <version|latest>" >&2
+		return 2
+	fi
+
+	local lib="$1"
+	local want="$2"
+	local ver="$want"
+
+	command -v perl >/dev/null 2>&1 || {
+		echo "missing: perl" >&2
+		return 1
+	}
+	command -v curl >/dev/null 2>&1 || {
+		echo "missing: curl" >&2
+		return 1
+	}
+	command -v git >/dev/null 2>&1 || {
+		echo "missing: git" >&2
+		return 1
+	}
+	command -v rg >/dev/null 2>&1 || {
+		echo "missing: rg" >&2
+		return 1
+	}
+
+	if [[ "$want" == "latest" ]]; then
+		command -v jq >/dev/null 2>&1 || {
+			echo "missing: jq (required for latest)" >&2
+			return 1
+		}
+		ver="$(
+			curl -fsSL "https://pypi.org/pypi/${lib}/json" |
+				jq -r '.info.version // empty'
+		)" || {
+			echo "failed to resolve latest version from PyPI for $lib" >&2
+			return 1
+		}
+		[[ -n "$ver" && "$ver" != "null" ]] || {
+			echo "PyPI returned no version for $lib" >&2
+			return 1
+		}
+	fi
+
+	local escaped_lib
+	escaped_lib="$(printf '%s' "$lib" | perl -pe 's/([^A-Za-z0-9_])/\\$1/g')"
+
+	local -a candidate_globs
+	candidate_globs=(
+		requirements.txt
+		dev-requirements.txt
+		.pre-commit-config.yaml
+		setup.cfg
+		pyproject.toml
+		custom_components/*/manifest.json
+	)
+
+	local -a existing_files
+	local candidate_glob
+	for candidate_glob in "${candidate_globs[@]}"; do
+		existing_files+=($~candidate_glob(N))
+	done
+
+	((${#existing_files} > 0)) || {
+		echo "no candidate dependency files exist in this repo" >&2
+		return 1
+	}
+
+	local -a matched_files
+	matched_files=("${(@f)$(rg -l -F -- "$lib" -- "${existing_files[@]}" 2>/dev/null || true)}")
+
+	((${#matched_files} > 0)) || {
+		echo "no matching files found for $lib" >&2
+		return 1
+	}
+
+	local -a changed_files
+	local f
+	for f in "${matched_files[@]}"; do
+		[[ -f "$f" ]] || continue
+
+		cp "$f" "$f.bak" || return 1
+
+		LIB="$escaped_lib" VER="$ver" perl -0pi -e '
+  my $lib = $ENV{LIB};
+  my $ver = $ENV{VER};
+
+  # Only replace actual versioned dependency specs.
+  # Preserves comparator and spacing.
+  #
+  # Matches:
+  #   lib==1.2.3
+  #   lib >= 1.2.3
+  #   "lib>=1.2.3"
+  #   lib[extra]~=1.2
+  #
+  # Does NOT match:
+  #   https://github.com/org/lib
+  #   documentation URLs
+  #   random prose strings
+  s{
+    (?<![A-Za-z0-9_./:-])         # avoid URLs / package-name substrings
+    ($lib(?:\[[^][]+\])?\s*)      # package name (+ optional extras)
+    (===|==|~=|!=|<=|>=|<|>)      # comparator
+    (\s*)                         # original spacing
+    ([A-Za-z0-9*+!._-]+)          # existing version
+  }{$1.$2.$3.$ver}gex;
+' "$f" || {
+			mv "$f.bak" "$f"
+			return 1
+		}
+
+		if ! cmp -s "$f.bak" "$f"; then
+			rm -f "$f.bak"
+			changed_files+=("$f")
+			echo "updated $f"
+		else
+			mv "$f.bak" "$f"
+		fi
+	done
+
+	((${#changed_files} > 0)) || {
+		echo "found $lib but no versions changed" >&2
+		return 1
+	}
+
+	local branch="bump-${lib//[^A-Za-z0-9._-]/-}-${ver}"
+
+	git checkout -b "$branch" || return 1
+	git add -- "${changed_files[@]}" || return 1
+	git commit -m "Bump $lib to $ver" || return 1
+
+	if command -v gh >/dev/null 2>&1; then
+		git push -u origin "$branch" || return 1
+
+		local pr_url
+		pr_url="$(
+			gh pr create \
+				--fill \
+				--title "Bump $lib to $ver" \
+				--body "Automated dependency bump for \`$lib\` to \`$ver\`."
+		)" || {
+			echo "commit created, but gh pr create failed" >&2
+			return 1
+		}
+
+		echo "created PR: $pr_url"
+
+		gh pr merge --auto --squash --delete-branch "$pr_url" || {
+			echo "PR created, but enabling auto-merge failed" >&2
+			return 1
+		}
+	else
+		echo "gh not found; skipping PR creation and auto-merge"
+	fi
+
+	echo "done: $lib -> $ver"
+}
