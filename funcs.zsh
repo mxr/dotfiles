@@ -152,7 +152,7 @@ tag() {
 	fi
 
 	git add "$version_file" || return 1
-	git commit -m "$tag_name" || return 1
+	git commit -m "$tag_name" --no-verify || return 1
 	git tag "$tag_name" || return 1
 	git push origin main "refs/tags/$tag_name" || return 1
 	gh release create "$tag_name" --generate-notes || return 1
@@ -304,7 +304,9 @@ bump() {
 
 	git checkout -b "$branch" || return 1
 	git add -- "${changed_files[@]}" || return 1
-	git commit -m "Bump $lib to $ver" || return 1
+
+	# sometimes the pypy cache doesn't update and pre-commit will fail. let CI deal with it.
+	git commit -m "Bump $lib to $ver" --no-verify || return 1
 
 	if command -v gh >/dev/null 2>&1; then
 		git push -u origin "$branch" || return 1
