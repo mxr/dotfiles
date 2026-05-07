@@ -10,7 +10,7 @@ repos:
   rev: v2.16.0
   hooks:
   - id: pretty-format-yaml
-    args: [--autofix]
+    args: [--autofix, --line-width=120]
 - repo: https://github.com/mxr/mirrors-shfmt
   rev: v3.13.1
   hooks:
