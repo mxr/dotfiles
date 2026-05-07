@@ -152,6 +152,7 @@ tag() {
 	fi
 
 	git add "$version_file" || return 1
+	# sometimes the pypy cache doesn't update and pre-commit will fail. let CI deal with it
 	git commit -m "$tag_name" --no-verify || return 1
 	git tag "$tag_name" || return 1
 	git push origin main "refs/tags/$tag_name" || return 1
