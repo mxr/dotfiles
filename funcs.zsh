@@ -87,7 +87,10 @@ tag() {
 		return 1
 	}
 
-	if [[ -f "setup.cfg" ]]; then
+	if [[ -f "package.json" ]]; then
+		version_file="package.json"
+		file_type="package_json"
+	elif [[ -f "setup.cfg" ]]; then
 		version_file="setup.cfg"
 		file_type="setup_cfg"
 	else
@@ -101,7 +104,7 @@ tag() {
 		echo "multiple manifest.json files found under custom_components" >&2
 		return 1
 	elif [[ -z "${file_type:-}" ]]; then
-		echo "missing setup.cfg or custom_components/*/manifest.json" >&2
+		echo "missing package.json, setup.cfg, or custom_components/*/manifest.json" >&2
 		return 1
 	fi
 
@@ -151,7 +154,14 @@ tag() {
 		mv "$version_file.tmp" "$version_file" || return 1
 	fi
 
-	git add "$version_file" || return 1
+	if [[ "$file_type" == "package_json" ]]; then
+		local -a package_files
+		npm i || return 1
+		package_files=(package.json package-lock.json(N) npm-shrinkwrap.json(N))
+		git add "${package_files[@]}" || return 1
+	else
+		git add "$version_file" || return 1
+	fi
 	# sometimes the pypy cache doesn't update and pre-commit will fail. let CI deal with it
 	git commit -m "$tag_name" --no-verify || return 1
 	git tag "$tag_name" || return 1
