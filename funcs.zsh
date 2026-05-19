@@ -332,3 +332,9 @@ bump() {
 
 	echo "done: $lib -> $ver"
 }
+
+# remove the trailing newline from a file (if it exists)
+# useful when editing auto-generated files manually
+function chomp {
+	perl -p -i -e 'chomp if eof' "$1"
+}
