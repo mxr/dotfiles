@@ -230,12 +230,6 @@ print(json.dumps(parse_qs(unquote('"$1"')), sort_keys=True, indent=2))
 """
 }
 
-# remove the trailing newline from a file (if it exists)
-# useful when editing auto-generated files manually
-function chomp {
-	perl -p -i -e 'chomp if eof' "$1"
-}
-
 function upgrade_pip_dependencies {
 	current_date_time="$(date +%s)"
 	ver="$1"
