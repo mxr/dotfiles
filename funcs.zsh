@@ -156,7 +156,7 @@ tag() {
 
 	if [[ "$file_type" == "package_json" ]]; then
 		local -a package_files
-        nvm use $(jq '.engines.node' -r package.json | tr -cd '[:digit:]') || return 1
+		nvm use $(jq '.engines.node' -r package.json | tr -cd '[:digit:]') || return 1
 		npm i || return 1
 		package_files=(package.json package-lock.json(N) npm-shrinkwrap.json(N))
 		git add "${package_files[@]}" || return 1
