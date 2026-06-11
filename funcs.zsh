@@ -93,6 +93,9 @@ tag() {
 	elif [[ -f "setup.cfg" ]]; then
 		version_file="setup.cfg"
 		file_type="setup_cfg"
+	elif [[ -f "Cargo.toml" ]]; then
+		version_file="Cargo.toml"
+		file_type="cargo_toml"
 	else
 		manifests=(custom_components/*/manifest.json(N))
 	fi
@@ -104,7 +107,7 @@ tag() {
 		echo "multiple manifest.json files found under custom_components" >&2
 		return 1
 	elif [[ -z "${file_type:-}" ]]; then
-		echo "missing package.json, setup.cfg, or custom_components/*/manifest.json" >&2
+		echo "missing package.json, setup.cfg, Cargo.toml, or custom_components/*/manifest.json" >&2
 		return 1
 	fi
 
@@ -113,6 +116,8 @@ tag() {
 
 	if [[ "$file_type" == "setup_cfg" ]]; then
 		version="$(perl -ne 'if (/^[ \t]*version[ \t]*=[ \t]*([0-9]+\.[0-9]+\.[0-9]+)[ \t]*$/) { print "$1\n"; exit }' "$version_file")"
+	elif [[ "$file_type" == "cargo_toml" ]]; then
+		version="$(perl -ne 'if (/^version\s*=\s*"([0-9]+\.[0-9]+\.[0-9]+)"/) { print "$1\n"; exit }' "$version_file")"
 	else
 		version="$(jq -r '.version' "$version_file")" || return 1
 	fi
@@ -149,6 +154,8 @@ tag() {
 
 	if [[ "$file_type" == "setup_cfg" ]]; then
 		perl -0pi -e "s/^[ \t]*version[ \t]*=[ \t]*[0-9]+\.[0-9]+\.[0-9]+[ \t]*\$/version = $new_version/m" "$version_file" || return 1
+	elif [[ "$file_type" == "cargo_toml" ]]; then
+		perl -0pi -e "s/^(version\\s*=\\s*)\"[0-9]+\\.[0-9]+\\.[0-9]+\"/\${1}\"$new_version\"/m" "$version_file" || return 1
 	else
 		jq --arg version "$new_version" '.version = $version' "$version_file" >"$version_file.tmp" || return 1
 		mv "$version_file.tmp" "$version_file" || return 1
@@ -160,6 +167,9 @@ tag() {
 		npm i || return 1
 		package_files=(package.json package-lock.json(N) npm-shrinkwrap.json(N))
 		git add "${package_files[@]}" || return 1
+	elif [[ "$file_type" == "cargo_toml" ]]; then
+		cargo generate-lockfile || return 1
+		git add Cargo.toml Cargo.lock || return 1
 	else
 		git add "$version_file" || return 1
 	fi
