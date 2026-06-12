@@ -93,6 +93,9 @@ tag() {
 	elif [[ -f "setup.cfg" ]]; then
 		version_file="setup.cfg"
 		file_type="setup_cfg"
+	elif [[ -f "pyproject.toml" ]]; then
+		version_file="pyproject.toml"
+		file_type="pyproject_toml"
 	elif [[ -f "Cargo.toml" ]]; then
 		version_file="Cargo.toml"
 		file_type="cargo_toml"
@@ -107,7 +110,7 @@ tag() {
 		echo "multiple manifest.json files found under custom_components" >&2
 		return 1
 	elif [[ -z "${file_type:-}" ]]; then
-		echo "missing package.json, setup.cfg, Cargo.toml, or custom_components/*/manifest.json" >&2
+		echo "missing package.json, setup.cfg, pyproject.toml, Cargo.toml, or custom_components/*/manifest.json" >&2
 		return 1
 	fi
 
@@ -116,7 +119,7 @@ tag() {
 
 	if [[ "$file_type" == "setup_cfg" ]]; then
 		version="$(perl -ne 'if (/^[ \t]*version[ \t]*=[ \t]*([0-9]+\.[0-9]+\.[0-9]+)[ \t]*$/) { print "$1\n"; exit }' "$version_file")"
-	elif [[ "$file_type" == "cargo_toml" ]]; then
+	elif [[ "$file_type" == "cargo_toml" || "$file_type" == "pyproject_toml" ]]; then
 		version="$(perl -ne 'if (/^version\s*=\s*"([0-9]+\.[0-9]+\.[0-9]+)"/) { print "$1\n"; exit }' "$version_file")"
 	else
 		version="$(jq -r '.version' "$version_file")" || return 1
@@ -154,7 +157,7 @@ tag() {
 
 	if [[ "$file_type" == "setup_cfg" ]]; then
 		perl -0pi -e "s/^[ \t]*version[ \t]*=[ \t]*[0-9]+\.[0-9]+\.[0-9]+[ \t]*\$/version = $new_version/m" "$version_file" || return 1
-	elif [[ "$file_type" == "cargo_toml" ]]; then
+	elif [[ "$file_type" == "cargo_toml" || "$file_type" == "pyproject_toml" ]]; then
 		perl -0pi -e "s/^(version\\s*=\\s*)\"[0-9]+\\.[0-9]+\\.[0-9]+\"/\${1}\"$new_version\"/m" "$version_file" || return 1
 	else
 		jq --arg version "$new_version" '.version = $version' "$version_file" >"$version_file.tmp" || return 1
