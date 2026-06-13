@@ -186,14 +186,10 @@ bump() {
 	emulate -L zsh
 	setopt pipefail null_glob
 
-	if [[ $# -ne 2 ]]; then
-		echo "usage: bump <lib> <version|latest>" >&2
+	if [[ $# -eq 0 ]]; then
+		echo "usage: bump <lib>:<version|latest> [<lib>:<version|latest> ...]" >&2
 		return 2
 	fi
-
-	local lib="$1"
-	local want="$2"
-	local ver="$want"
 
 	command -v perl >/dev/null 2>&1 || {
 		echo "missing: perl" >&2
@@ -212,26 +208,40 @@ bump() {
 		return 1
 	}
 
-	if [[ "$want" == "latest" ]]; then
-		command -v jq >/dev/null 2>&1 || {
-			echo "missing: jq (required for latest)" >&2
-			return 1
-		}
-		ver="$(
-			curl -fsSL "https://pypi.org/pypi/${lib}/json" |
-				jq -r '.info.version // empty'
-		)" || {
-			echo "failed to resolve latest version from PyPI for $lib" >&2
-			return 1
-		}
-		[[ -n "$ver" && "$ver" != "null" ]] || {
-			echo "PyPI returned no version for $lib" >&2
-			return 1
-		}
-	fi
+	local -a libs vers
+	local tuple lib want ver
 
-	local escaped_lib
-	escaped_lib="$(printf '%s' "$lib" | perl -pe 's/([^A-Za-z0-9_])/\\$1/g')"
+	for tuple in "$@"; do
+		lib="${tuple%%:*}"
+		want="${tuple#*:}"
+		[[ -n "$lib" && -n "$want" && "$lib" != "$tuple" ]] || {
+			echo "invalid tuple: $tuple (expected lib:version)" >&2
+			return 2
+		}
+
+		if [[ "$want" == "latest" ]]; then
+			command -v jq >/dev/null 2>&1 || {
+				echo "missing: jq (required for latest)" >&2
+				return 1
+			}
+			ver="$(
+				curl -fsSL "https://pypi.org/pypi/${lib}/json" |
+					jq -r '.info.version // empty'
+			)" || {
+				echo "failed to resolve latest version from PyPI for $lib" >&2
+				return 1
+			}
+			[[ -n "$ver" && "$ver" != "null" ]] || {
+				echo "PyPI returned no version for $lib" >&2
+				return 1
+			}
+		else
+			ver="$want"
+		fi
+
+		libs+=("$lib")
+		vers+=("$ver")
+	done
 
 	local -a candidate_globs
 	candidate_globs=(
@@ -254,22 +264,29 @@ bump() {
 		return 1
 	}
 
+	local -a all_changed_files
+	local i escaped_lib f
 	local -a matched_files
-	matched_files=("${(@f)$(rg -l -F -- "$lib" -- "${existing_files[@]}" 2>/dev/null || true)}")
 
-	((${#matched_files} > 0)) || {
-		echo "no matching files found for $lib" >&2
-		return 1
-	}
+	for i in "${(@k)libs}"; do
+		lib="${libs[$i]}"
+		ver="${vers[$i]}"
+		escaped_lib="$(printf '%s' "$lib" | perl -pe 's/([^A-Za-z0-9_])/\\$1/g')"
 
-	local -a changed_files
-	local f
-	for f in "${matched_files[@]}"; do
-		[[ -f "$f" ]] || continue
+		matched_files=("${(@f)$(rg -l -F -- "$lib" -- "${existing_files[@]}" 2>/dev/null || true)}")
 
-		cp "$f" "$f.bak" || return 1
+		((${#matched_files} > 0)) || {
+			echo "no matching files found for $lib" >&2
+			return 1
+		}
 
-		LIB="$escaped_lib" VER="$ver" perl -0pi -e '
+		local -a lib_changed_files
+		for f in "${matched_files[@]}"; do
+			[[ -f "$f" ]] || continue
+
+			cp "$f" "$f.bak" || return 1
+
+			LIB="$escaped_lib" VER="$ver" perl -0pi -e '
   my $lib = $ENV{LIB};
   my $ver = $ENV{VER};
 
@@ -294,31 +311,61 @@ bump() {
     ([A-Za-z0-9*+!._-]+)          # existing version
   }{$1.$2.$3.$ver}gex;
 ' "$f" || {
-			mv "$f.bak" "$f"
+				mv "$f.bak" "$f"
+				return 1
+			}
+
+			if ! cmp -s "$f.bak" "$f"; then
+				rm -f "$f.bak"
+				lib_changed_files+=("$f")
+				echo "updated $f ($lib -> $ver)"
+			else
+				mv "$f.bak" "$f"
+			fi
+		done
+
+		((${#lib_changed_files} > 0)) || {
+			echo "found $lib but no versions changed" >&2
 			return 1
 		}
 
-		if ! cmp -s "$f.bak" "$f"; then
-			rm -f "$f.bak"
-			changed_files+=("$f")
-			echo "updated $f"
-		else
-			mv "$f.bak" "$f"
-		fi
+		for f in "${lib_changed_files[@]}"; do
+			[[ ${all_changed_files[(I)$f]} -eq 0 ]] && all_changed_files+=("$f")
+		done
 	done
 
-	((${#changed_files} > 0)) || {
-		echo "found $lib but no versions changed" >&2
-		return 1
-	}
+	local branch_libs="${(j:-:)libs[@]//_/-}"
+	local branch
+	if [[ ${#libs} -eq 1 ]]; then
+		branch="bump-${libs[1]//[^A-Za-z0-9._-]/-}-${vers[1]}"
+	else
+		branch="bump-${branch_libs//[^A-Za-z0-9._-]/-}"
+	fi
 
-	local branch="bump-${lib//[^A-Za-z0-9._-]/-}-${ver}"
+	local commit_title pr_title pr_body
+	if [[ ${#libs} -eq 1 ]]; then
+		commit_title="Bump ${libs[1]} to ${vers[1]}"
+		pr_title="$commit_title"
+		pr_body="Automated dependency bump for \`${libs[1]}\` to \`${vers[1]}\`."
+	else
+		local -a bump_list
+		for i in "${(@k)libs}"; do
+			bump_list+=("${libs[$i]} to ${vers[$i]}")
+		done
+		commit_title="Bump ${(j:, :)bump_list}"
+		pr_title="$commit_title"
+		local bullet
+		pr_body=""
+		for i in "${(@k)libs}"; do
+			pr_body+="- \`${libs[$i]}\` -> \`${vers[$i]}\`"$'\n'
+		done
+	fi
 
 	git checkout -b "$branch" || return 1
-	git add -- "${changed_files[@]}" || return 1
+	git add -- "${all_changed_files[@]}" || return 1
 
 	# sometimes the pypy cache doesn't update and pre-commit will fail. let CI deal with it.
-	git commit -m "Bump $lib to $ver" --no-verify || return 1
+	git commit -m "$commit_title" --no-verify || return 1
 
 	if command -v gh >/dev/null 2>&1; then
 		git push -u origin "$branch" || return 1
@@ -327,8 +374,8 @@ bump() {
 		pr_url="$(
 			gh pr create \
 				--fill \
-				--title "Bump $lib to $ver" \
-				--body "Automated dependency bump for \`$lib\` to \`$ver\`."
+				--title "$pr_title" \
+				--body "$pr_body"
 		)" || {
 			echo "commit created, but gh pr create failed" >&2
 			return 1
@@ -344,7 +391,9 @@ bump() {
 		echo "gh not found; skipping PR creation and auto-merge"
 	fi
 
-	echo "done: $lib -> $ver"
+	for i in "${(@k)libs}"; do
+		echo "done: ${libs[$i]} -> ${vers[$i]}"
+	done
 }
 
 # remove the trailing newline from a file (if it exists)
