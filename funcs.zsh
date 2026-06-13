@@ -125,8 +125,7 @@ tag() {
 	elif [[ "$file_type" == "cargo_toml" || "$file_type" == "pyproject_toml" ]]; then
 		version="$(perl -ne 'if (/^version\s*=\s*"([0-9]+\.[0-9]+\.[0-9]+)"/) { print "$1\n"; exit }' "$version_file")"
 	elif [[ "$file_type" == "dot_version" ]]; then
-		version="$(<"$version_file")"
-		version="${version%%$'\n'*}"
+		version="$(head -1 "$version_file")"
 	else
 		version="$(jq -r '.version' "$version_file")" || return 1
 	fi
