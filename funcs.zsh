@@ -90,13 +90,13 @@ tag() {
 	if [[ -f "package.json" ]]; then
 		version_file="package.json"
 		file_type="package_json"
-	elif [[ -f "setup.cfg" ]]; then
+	elif [[ -f "setup.cfg" ]] && grep -qE '^[ \t]*version[ \t]*=[ \t]*[0-9]+\.[0-9]+\.[0-9]+[ \t]*$' setup.cfg; then
 		version_file="setup.cfg"
 		file_type="setup_cfg"
-	elif [[ -f "pyproject.toml" ]]; then
+	elif [[ -f "pyproject.toml" ]] && grep -qE '^version\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"' pyproject.toml; then
 		version_file="pyproject.toml"
 		file_type="pyproject_toml"
-	elif [[ -f "Cargo.toml" ]]; then
+	elif [[ -f "Cargo.toml" ]] && grep -qE '^version\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"' Cargo.toml; then
 		version_file="Cargo.toml"
 		file_type="cargo_toml"
 	elif [[ -f ".version" ]]; then
