@@ -275,7 +275,7 @@ bump() {
 	local i escaped_lib f
 	local -a matched_files
 
-	for i in "${(@k)libs}"; do
+	for i in {1..${#libs}}; do
 		lib="${libs[$i]}"
 		ver="${vers[$i]}"
 		escaped_lib="$(printf '%s' "$lib" | perl -pe 's/([^A-Za-z0-9_])/\\$1/g')"
@@ -356,14 +356,14 @@ bump() {
 		pr_body="Automated dependency bump for \`${libs[1]}\` to \`${vers[1]}\`."
 	else
 		local -a bump_list
-		for i in "${(@k)libs}"; do
+		for i in {1..${#libs}}; do
 			bump_list+=("${libs[$i]} to ${vers[$i]}")
 		done
 		commit_title="Bump ${(j:, :)bump_list}"
 		pr_title="$commit_title"
 		local bullet
 		pr_body=""
-		for i in "${(@k)libs}"; do
+		for i in {1..${#libs}}; do
 			pr_body+="- \`${libs[$i]}\` -> \`${vers[$i]}\`"$'\n'
 		done
 	fi
@@ -398,7 +398,7 @@ bump() {
 		echo "gh not found; skipping PR creation and auto-merge"
 	fi
 
-	for i in "${(@k)libs}"; do
+	for i in {1..${#libs}}; do
 		echo "done: ${libs[$i]} -> ${vers[$i]}"
 	done
 }
