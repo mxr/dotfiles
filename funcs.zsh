@@ -271,6 +271,9 @@ bump() {
 		return 1
 	}
 
+	git checkout main || return 1
+	git pull --ff-only || return 1
+
 	local -a all_changed_files
 	local i escaped_lib f
 	local -a matched_files
