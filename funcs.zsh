@@ -274,6 +274,17 @@ bump() {
 	git checkout main || return 1
 	git pull --ff-only || return 1
 
+	local branch_libs="${(j:-:)libs[@]//_/-}"
+	local branch
+	if [[ ${#libs} -eq 1 ]]; then
+		branch="bump-${libs[1]//[^A-Za-z0-9._-]/-}-${vers[1]}"
+	else
+		branch="bump-${branch_libs//[^A-Za-z0-9._-]/-}"
+	fi
+
+	git branch -D "$branch" 2>/dev/null
+	git checkout -b "$branch" || return 1
+
 	local -a all_changed_files
 	local i escaped_lib f
 	local -a matched_files
@@ -344,14 +355,6 @@ bump() {
 		done
 	done
 
-	local branch_libs="${(j:-:)libs[@]//_/-}"
-	local branch
-	if [[ ${#libs} -eq 1 ]]; then
-		branch="bump-${libs[1]//[^A-Za-z0-9._-]/-}-${vers[1]}"
-	else
-		branch="bump-${branch_libs//[^A-Za-z0-9._-]/-}"
-	fi
-
 	local commit_title pr_title pr_body
 	if [[ ${#libs} -eq 1 ]]; then
 		commit_title="Bump ${libs[1]} to ${vers[1]}"
@@ -371,14 +374,13 @@ bump() {
 		done
 	fi
 
-	git checkout -b "$branch" || return 1
 	git add -- "${all_changed_files[@]}" || return 1
 
 	# sometimes the pypy cache doesn't update and pre-commit will fail. let CI deal with it.
 	git commit -m "$commit_title" --no-verify || return 1
 
 	if command -v gh >/dev/null 2>&1; then
-		git push -u origin "$branch" || return 1
+		git push -u --force origin "$branch" || return 1
 
 		local pr_url
 		pr_url="$(
