@@ -380,7 +380,7 @@ bump() {
 	git commit -m "$commit_title" --no-verify || return 1
 
 	if command -v gh >/dev/null 2>&1; then
-		git push -u --force origin "$branch" || return 1
+		git push -u origin "$branch" || return 1
 
 		local pr_url
 		pr_url="$(
