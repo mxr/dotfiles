@@ -14,3 +14,10 @@ pull_request_rules:
   actions:
     merge:
       method: squash
+
+- name: automatic merge for copier updates
+  conditions:
+  - author=mxr-base-copier-sync[bot]
+  actions:
+    merge:
+      method: squash
