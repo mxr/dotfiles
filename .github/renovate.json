@@ -19,7 +19,7 @@
   ],
   "prBodyTemplate": "{{{table}}}",
   "schedule": [
-    "before 6am on monday"
+    "* 16-17 * * 1"
   ],
   "separateMajorMinor": false,
   "separateMultipleMajor": false
