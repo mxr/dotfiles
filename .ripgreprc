@@ -6,5 +6,9 @@
 # No need to search git
 --glob=!.git/*
 
+# Skip lockfiles
+--glob=!package-lock.json
+--glob=!uv.lock
+
 # Case-insensitive if whole pattern is lowercase, case-sensitive if not
 --smart-case
