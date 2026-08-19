@@ -174,7 +174,7 @@ tag() {
 	if [[ "$file_type" == "package_json" ]]; then
 		local -a package_files
 		local node_version
-		node_version=$(jq '.engines.node' -r package.json | tr -cd '[:digit:]')
+		node_version=$(jq '.engines.node' -r package.json | tr -cd '[:digit:].')
 		nvm which "$node_version" &>/dev/null || nvm install "$node_version" || return 1
 		nvm use "$node_version" || return 1
 		npm i || return 1
