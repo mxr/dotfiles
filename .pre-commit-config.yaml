@@ -7,7 +7,7 @@ repos:
   - id: pretty-format-yaml
     args: [--autofix]
 - repo: https://github.com/mxr/mirrors-shfmt
-  rev: 2c832c34f785c8ebc052a89d59f5cfcd1e31e7f9  # frozen: v3.13.1
+  rev: f694edd5b288c47da5f51bcb7436e5d432355344  # frozen: v3.14.0
   hooks:
   - id: shfmt
 - repo: https://github.com/pre-commit/pre-commit-hooks
