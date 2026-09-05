@@ -294,7 +294,7 @@ bump() {
 	git branch -D "$branch" 2>/dev/null
 	git checkout -b "$branch" || return 1
 
-	local -a all_changed_files
+	local -a all_changed_files bumped_libs bumped_vers
 	local i escaped_lib f
 	local -a matched_files
 
@@ -307,7 +307,7 @@ bump() {
 
 		((${#matched_files} > 0)) || {
 			echo "no matching files found for $lib" >&2
-			return 1
+			continue
 		}
 
 		local -a lib_changed_files
@@ -356,30 +356,37 @@ bump() {
 
 		((${#lib_changed_files} > 0)) || {
 			echo "found $lib but no versions changed" >&2
-			return 1
+			continue
 		}
 
 		for f in "${lib_changed_files[@]}"; do
 			[[ ${all_changed_files[(I)$f]} -eq 0 ]] && all_changed_files+=("$f")
 		done
+		bumped_libs+=("$lib")
+		bumped_vers+=("$ver")
 	done
 
+	((${#bumped_libs} > 0)) || {
+		echo "no versions changed for any lib" >&2
+		return 1
+	}
+
 	local commit_title pr_title pr_body
-	if [[ ${#libs} -eq 1 ]]; then
-		commit_title="Bump ${libs[1]} to ${vers[1]}"
+	if [[ ${#bumped_libs} -eq 1 ]]; then
+		commit_title="Bump ${bumped_libs[1]} to ${bumped_vers[1]}"
 		pr_title="$commit_title"
-		pr_body="Automated dependency bump for \`${libs[1]}\` to \`${vers[1]}\`."
+		pr_body="Automated dependency bump for \`${bumped_libs[1]}\` to \`${bumped_vers[1]}\`."
 	else
 		local -a bump_list
-		for i in {1..${#libs}}; do
-			bump_list+=("${libs[$i]} to ${vers[$i]}")
+		for i in {1..${#bumped_libs}}; do
+			bump_list+=("${bumped_libs[$i]} to ${bumped_vers[$i]}")
 		done
 		commit_title="Bump ${(j:, :)bump_list}"
 		pr_title="$commit_title"
 		local bullet
 		pr_body=""
-		for i in {1..${#libs}}; do
-			pr_body+="- \`${libs[$i]}\` -> \`${vers[$i]}\`"$'\n'
+		for i in {1..${#bumped_libs}}; do
+			pr_body+="- \`${bumped_libs[$i]}\` -> \`${bumped_vers[$i]}\`"$'\n'
 		done
 	fi
 
@@ -412,8 +419,8 @@ bump() {
 		echo "gh not found; skipping PR creation and auto-merge"
 	fi
 
-	for i in {1..${#libs}}; do
-		echo "done: ${libs[$i]} -> ${vers[$i]}"
+	for i in {1..${#bumped_libs}}; do
+		echo "done: ${bumped_libs[$i]} -> ${bumped_vers[$i]}"
 	done
 }
 
