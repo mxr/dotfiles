@@ -181,7 +181,13 @@ tag() {
 		package_files=(package.json package-lock.json(N) npm-shrinkwrap.json(N))
 		git add "${package_files[@]}" || return 1
 	elif [[ "$file_type" == "cargo_toml" ]]; then
-		cargo generate-lockfile || return 1
+		local cargo_pkg_name
+		cargo_pkg_name="$(perl -0ne 'print "$1\n" if /^\[package\].*?^name\s*=\s*"([^"]+)"/ms' Cargo.toml)"
+		[[ -n "$cargo_pkg_name" ]] || {
+			echo "could not parse package name from Cargo.toml" >&2
+			return 1
+		}
+		cargo update --offline -p "$cargo_pkg_name" || return 1
 		git add Cargo.toml Cargo.lock || return 1
 	else
 		git add "$version_file" || return 1
