@@ -2,7 +2,7 @@
 
 repos:
 - repo: https://github.com/biomejs/pre-commit
-  rev: 8a54093106c1c85f977afbb95ada8685786a2999  # frozen: v2.5.11
+  rev: 14ca40ece1f3137d278ba53855521bfec129e1f5  # frozen: v2.5.12
   hooks:
   - id: biome-check
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
@@ -11,7 +11,7 @@ repos:
   - id: pretty-format-yaml
     args: [--autofix]
 - repo: https://github.com/mxr/mirrors-shfmt
-  rev: f694edd5b288c47da5f51bcb7436e5d432355344  # frozen: v3.14.0
+  rev: 5d26eb52caaa8cd2d984c9863a06c1f4c12b1e54  # frozen: v3.14.1
   hooks:
   - id: shfmt
 - repo: https://github.com/pre-commit/pre-commit-hooks
