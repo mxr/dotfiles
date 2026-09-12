@@ -2,7 +2,7 @@
 
 repos:
 - repo: https://github.com/biomejs/pre-commit
-  rev: 14ca40ece1f3137d278ba53855521bfec129e1f5  # frozen: v2.5.12
+  rev: 992342fc7460b8fe94b98b7e2f3e811d0bebdc5c  # frozen: v2.5.13
   hooks:
   - id: biome-check
 - repo: https://github.com/hukkin/mdformat
@@ -10,8 +10,7 @@ repos:
   hooks:
   - id: mdformat
     args: [--number, --wrap, '120']
-    additional_dependencies:
-    - mdformat-gfm
+    additional_dependencies: [mdformat-gfm]
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: 4380fbb73a154b5f5624794c1c78d9719ccc860f  # frozen: v2.16.0
   hooks:
