@@ -10,7 +10,7 @@ repos:
   hooks:
   - id: mdformat
     args: [--number, --wrap, '120']
-    additional_dependencies: [mdformat-gfm]
+    additional_dependencies: [mdformat-footnote, mdformat-gfm, mdformat-gfm-alerts]
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: 4380fbb73a154b5f5624794c1c78d9719ccc860f  # frozen: v2.16.0
   hooks:
