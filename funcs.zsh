@@ -162,7 +162,11 @@ tag() {
 
 	if [[ "$file_type" == "setup_cfg" ]]; then
 		perl -0pi -e "s/^[ \t]*version[ \t]*=[ \t]*[0-9]+\.[0-9]+\.[0-9]+[ \t]*\$/version = $new_version/m" "$version_file" || return 1
-	elif [[ "$file_type" == "cargo_toml" || "$file_type" == "pyproject_toml" ]]; then
+	elif [[ "$file_type" == "pyproject_toml" && -f "uv.lock" ]]; then
+		uv version "$new_version" --no-sync || return 1
+	elif [[ "$file_type" == "pyproject_toml" ]]; then
+		uv version "$new_version" --frozen || return 1
+	elif [[ "$file_type" == "cargo_toml" ]]; then
 		perl -0pi -e "s/^(version\\s*=\\s*)\"[0-9]+\\.[0-9]+\\.[0-9]+\"/\${1}\"$new_version\"/m" "$version_file" || return 1
 	elif [[ "$file_type" == "dot_version" ]]; then
 		printf '%s\n' "$new_version" >"$version_file" || return 1
@@ -189,6 +193,8 @@ tag() {
 		}
 		cargo update --offline -p "$cargo_pkg_name" || return 1
 		git add Cargo.toml Cargo.lock || return 1
+	elif [[ "$file_type" == "pyproject_toml" && -f "uv.lock" ]]; then
+		git add pyproject.toml uv.lock || return 1
 	else
 		git add "$version_file" || return 1
 	fi
