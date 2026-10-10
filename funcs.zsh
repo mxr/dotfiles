@@ -171,8 +171,11 @@ tag() {
 	elif [[ "$file_type" == "dot_version" ]]; then
 		printf '%s\n' "$new_version" >"$version_file" || return 1
 	else
-		jq --arg version "$new_version" '.version = $version' "$version_file" >"$version_file.tmp" || return 1
-		mv "$version_file.tmp" "$version_file" || return 1
+		OLD="$version" NEW="$new_version" perl -0pi -e 's/("version"\s*:\s*")\Q$ENV{OLD}\E"/${1}$ENV{NEW}"/' "$version_file" || return 1
+		grep -qF "\"$new_version\"" "$version_file" || {
+			echo "failed to update version in $version_file" >&2
+			return 1
+		}
 	fi
 
 	if [[ "$file_type" == "package_json" ]]; then
