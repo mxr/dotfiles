@@ -289,6 +289,13 @@ bump() {
 		return 1
 	}
 
+	if [[ -f uv.lock ]]; then
+		command -v uv >/dev/null 2>&1 || {
+			echo "missing: uv (required for uv.lock)" >&2
+			return 1
+		}
+	fi
+
 	git checkout main || return 1
 	git pull --ff-only || return 1
 
@@ -379,6 +386,15 @@ bump() {
 		echo "no versions changed for any lib" >&2
 		return 1
 	}
+
+	if [[ -f uv.lock ]]; then
+		local -a upgrade_args
+		for lib in "${bumped_libs[@]}"; do
+			upgrade_args+=(--upgrade-package "$lib")
+		done
+		uv lock "${upgrade_args[@]}" || return 1
+		all_changed_files+=(uv.lock)
+	fi
 
 	local commit_title pr_title pr_body
 	if [[ ${#bumped_libs} -eq 1 ]]; then
