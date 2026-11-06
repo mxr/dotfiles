@@ -27,10 +27,20 @@ repos:
     args: [--assume-in-merge]
   - id: end-of-file-fixer
   - id: trailing-whitespace
+- repo: https://github.com/rhysd/actionlint
+  rev: 914e7df21a07ef503a81201c76d2b11c789d3fca  # frozen: v1.7.12
+  hooks:
+  - id: actionlint
+    additional_dependencies: [github.com/wasilibs/go-shellcheck/cmd/shellcheck@latest]
 - repo: https://github.com/shellcheck-py/shellcheck-py
   rev: a6564f5d57444e123433a5c9af733e3975c77229  # frozen: v0.11.0.1-1
   hooks:
   - id: shellcheck
+- repo: https://github.com/zizmorcore/zizmor-pre-commit
+  rev: 06a39750ec31860bb44f2acf67182c40016cd1e7  # frozen: v1.32.0
+  hooks:
+  - id: zizmor
+    args: [--no-progress, --fix]
 - repo: local
   hooks:
   - id: biome-schema-version
