@@ -75,11 +75,13 @@ tag() {
 	local version_file file_type
 	local -a manifests
 	local version new_version
-	local major minor patch
+	local major minor patch rc new_rc last_bump
 	local tag_name
+	# x.y.z with an optional PEP 440 (rc1) or semver (-rc.1) release candidate suffix
+	local vre='[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+|-rc\.[0-9]+)?'
 
-	if [[ "$bump" != "major" && "$bump" != "minor" && "$bump" != "patch" ]] || [[ -n "$pre" && "$pre" != "pre" ]]; then
-		echo "usage: tag {major|minor|patch} [pre]" >&2
+	if ! [[ "$bump" == (major|minor|patch) && (-z "$pre" || "$pre" == "pre") || "$bump" == "pre" && -z "$pre" ]]; then
+		echo "usage: tag {major|minor|patch} [pre] | tag pre" >&2
 		return 1
 	fi
 
@@ -91,13 +93,13 @@ tag() {
 	if [[ -f "package.json" ]]; then
 		version_file="package.json"
 		file_type="package_json"
-	elif [[ -f "setup.cfg" ]] && grep -qE '^[ \t]*version[ \t]*=[ \t]*[0-9]+\.[0-9]+\.[0-9]+[ \t]*$' setup.cfg; then
+	elif [[ -f "setup.cfg" ]] && grep -qE '^[ \t]*version[ \t]*=[ \t]*'"$vre"'[ \t]*$' setup.cfg; then
 		version_file="setup.cfg"
 		file_type="setup_cfg"
-	elif [[ -f "pyproject.toml" ]] && grep -qE '^version\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"' pyproject.toml; then
+	elif [[ -f "pyproject.toml" ]] && grep -qE '^version\s*=\s*"'"$vre"'"' pyproject.toml; then
 		version_file="pyproject.toml"
 		file_type="pyproject_toml"
-	elif [[ -f "Cargo.toml" ]] && grep -qE '^version\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"' Cargo.toml; then
+	elif [[ -f "Cargo.toml" ]] && grep -qE '^version\s*=\s*"'"$vre"'"' Cargo.toml; then
 		version_file="Cargo.toml"
 		file_type="cargo_toml"
 	elif [[ -f ".version" ]]; then
@@ -122,9 +124,9 @@ tag() {
 	git pull --ff-only || return 1
 
 	if [[ "$file_type" == "setup_cfg" ]]; then
-		version="$(perl -ne 'if (/^[ \t]*version[ \t]*=[ \t]*([0-9]+\.[0-9]+\.[0-9]+)[ \t]*$/) { print "$1\n"; exit }' "$version_file")"
+		version="$(V="$vre" perl -ne 'if (/^[ \t]*version[ \t]*=[ \t]*($ENV{V})[ \t]*$/) { print "$1\n"; exit }' "$version_file")"
 	elif [[ "$file_type" == "cargo_toml" || "$file_type" == "pyproject_toml" ]]; then
-		version="$(perl -ne 'if (/^version\s*=\s*"([0-9]+\.[0-9]+\.[0-9]+)"/) { print "$1\n"; exit }' "$version_file")"
+		version="$(V="$vre" perl -ne 'if (/^version\s*=\s*"($ENV{V})"/) { print "$1\n"; exit }' "$version_file")"
 	elif [[ "$file_type" == "dot_version" ]]; then
 		version="$(head -1 "$version_file")"
 	else
@@ -136,39 +138,69 @@ tag() {
 		return 1
 	}
 
-	[[ "$version" =~ '^[0-9]+\.[0-9]+\.[0-9]+$' ]] || {
+	[[ "$version" =~ '^([0-9]+)\.([0-9]+)\.([0-9]+)((rc|-rc\.)([0-9]+))?$' ]] || {
 		echo "unsupported version format in $version_file: $version" >&2
 		return 1
 	}
 
-	IFS='.' read -r major minor patch <<<"$version"
+	major="${match[1]}"
+	minor="${match[2]}"
+	patch="${match[3]}"
+	rc="${match[6]}"
+	new_rc=""
 
-	case "$bump" in
-	major)
-		((major += 1))
-		minor=0
-		patch=0
-		;;
-	minor)
-		((minor += 1))
-		patch=0
-		;;
-	patch)
-		((patch += 1))
-		;;
-	esac
+	if [[ -n "$rc" ]]; then
+		# x.0.0 came from a major bump, x.y.0 from minor, anything else from patch
+		last_bump=patch
+		if ((minor == 0 && patch == 0)); then
+			last_bump=major
+		elif ((patch == 0)); then
+			last_bump=minor
+		fi
+		if [[ "$bump" == "pre" ]]; then
+			new_rc=$((rc + 1))
+		elif [[ "$bump" != "$last_bump" || -n "$pre" ]]; then
+			echo "$version is a $last_bump prerelease; use 'tag pre' for the next one or 'tag $last_bump' to release it" >&2
+			return 1
+		fi
+	else
+		case "$bump" in
+		pre)
+			echo "$version is not a prerelease; use 'tag {major|minor|patch} pre' to start one" >&2
+			return 1
+			;;
+		major)
+			((major += 1))
+			minor=0
+			patch=0
+			;;
+		minor)
+			((minor += 1))
+			patch=0
+			;;
+		patch)
+			((patch += 1))
+			;;
+		esac
+		[[ "$pre" == "pre" ]] && new_rc=0
+	fi
 
 	new_version="${major}.${minor}.${patch}"
+	if [[ -n "$new_rc" && "$file_type" == (package_json|cargo_toml) ]]; then
+		new_version+="-rc.${new_rc}"
+	elif [[ -n "$new_rc" ]]; then
+		new_version+="rc${new_rc}"
+	fi
 	tag_name="v${new_version}"
 
 	if [[ "$file_type" == "setup_cfg" ]]; then
-		perl -0pi -e "s/^[ \t]*version[ \t]*=[ \t]*[0-9]+\.[0-9]+\.[0-9]+[ \t]*\$/version = $new_version/m" "$version_file" || return 1
+		perl -0pi -e "s/^[ \t]*version[ \t]*=[ \t]*${vre}[ \t]*\$/version = $new_version/m" "$version_file" || return 1
 	elif [[ "$file_type" == "pyproject_toml" && -f "uv.lock" ]]; then
 		uv version "$new_version" --no-sync || return 1
 	elif [[ "$file_type" == "pyproject_toml" ]]; then
 		uv version "$new_version" --frozen || return 1
 	elif [[ "$file_type" == "cargo_toml" ]]; then
-		perl -0pi -e "s/^(version\\s*=\\s*)\"[0-9]+\\.[0-9]+\\.[0-9]+\"/\${1}\"$new_version\"/m" "$version_file" || return 1
+		perl -0pi -e "s/^(version\\s*=\\s*)\"${vre}\"/\${1}\"$new_version\"/m" "$version_file" || return 1
 	elif [[ "$file_type" == "dot_version" ]]; then
 		printf '%s\n' "$new_version" >"$version_file" || return 1
 	else
@@ -206,16 +238,6 @@ tag() {
 	git commit -m "$tag_name" --no-verify || return 1
 	git tag "$tag_name" || return 1
 	git push origin main "refs/tags/$tag_name" || return 1
-
-	if [[ "$pre" == "pre" ]]; then
-		# the release workflow creates the release on tag push, so wait for it before flagging it
-		local attempt
-		for attempt in {1..60}; do
-			gh release view "$tag_name" >/dev/null 2>&1 && break
-			sleep 5
-		done
-		gh release edit "$tag_name" --prerelease || return 1
-	fi
 }
 
 bump() {
