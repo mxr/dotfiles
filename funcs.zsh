@@ -71,14 +71,15 @@ tag() {
 	setopt nounset pipefail
 
 	local bump="${1:-}"
+	local pre="${2:-}"
 	local version_file file_type
 	local -a manifests
 	local version new_version
 	local major minor patch
 	local tag_name
 
-	if [[ "$bump" != "major" && "$bump" != "minor" && "$bump" != "patch" ]]; then
-		echo "usage: tag {major|minor|patch}" >&2
+	if [[ "$bump" != "major" && "$bump" != "minor" && "$bump" != "patch" ]] || [[ -n "$pre" && "$pre" != "pre" ]]; then
+		echo "usage: tag {major|minor|patch} [pre]" >&2
 		return 1
 	fi
 
@@ -205,6 +206,16 @@ tag() {
 	git commit -m "$tag_name" --no-verify || return 1
 	git tag "$tag_name" || return 1
 	git push origin main "refs/tags/$tag_name" || return 1
+
+	if [[ "$pre" == "pre" ]]; then
+		# the release workflow creates the release on tag push, so wait for it before flagging it
+		local attempt
+		for attempt in {1..60}; do
+			gh release view "$tag_name" >/dev/null 2>&1 && break
+			sleep 5
+		done
+		gh release edit "$tag_name" --prerelease || return 1
+	fi
 }
 
 bump() {
