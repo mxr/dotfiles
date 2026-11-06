@@ -1,6 +1,2 @@
 stack:
 - shell
-- github-actions
-opt:
-  shell:
-    bats: true
