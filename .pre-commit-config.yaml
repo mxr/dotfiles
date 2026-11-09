@@ -2,7 +2,7 @@
 
 repos:
 - repo: https://github.com/biomejs/pre-commit
-  rev: 9043c78f09d0d322ff458336dcb1aefcdfdbb8a0  # frozen: v2.6.3
+  rev: bc3c1d9acd69eaa1e5912f282ca563f914fd78d3  # frozen: v2.6.4
   hooks:
   - id: biome-check
 - repo: https://github.com/hukkin/mdformat
