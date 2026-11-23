@@ -2,7 +2,7 @@
 
 repos:
 - repo: https://github.com/biomejs/pre-commit
-  rev: bc3c1d9acd69eaa1e5912f282ca563f914fd78d3  # frozen: v2.6.4
+  rev: 216d8fa970928fb8a778ca681142e9927f99a77d  # frozen: v2.6.8
   hooks:
   - id: biome-check
 - repo: https://github.com/hukkin/mdformat
@@ -37,7 +37,7 @@ repos:
   hooks:
   - id: shellcheck
 - repo: https://github.com/zizmorcore/zizmor-pre-commit
-  rev: 06a39750ec31860bb44f2acf67182c40016cd1e7  # frozen: v1.32.0
+  rev: c7d31dc612dffdd4d3b2f2b88b9660d3ab057ee8  # frozen: v1.33.1
   hooks:
   - id: zizmor
     args: [--no-progress, --fix]
