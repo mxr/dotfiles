@@ -5,12 +5,6 @@ repos:
   rev: 216d8fa970928fb8a778ca681142e9927f99a77d  # frozen: v2.6.8
   hooks:
   - id: biome-check
-- repo: https://github.com/hukkin/mdformat
-  rev: 2d496dbc18e31b83a1596685347ffe0b6041daf0  # frozen: 1.0.0
-  hooks:
-  - id: mdformat
-    args: [--number, --wrap, '120']
-    additional_dependencies: [mdformat-footnote, mdformat-gfm, mdformat-gfm-alerts]
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: 4380fbb73a154b5f5624794c1c78d9719ccc860f  # frozen: v2.16.0
   hooks:
