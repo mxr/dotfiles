@@ -33,6 +33,11 @@
     {
       "matchDatasources": ["github-runners"],
       "minimumReleaseAgeBehaviour": "timestamp-optional"
+    },
+    {
+      "matchDatasources": ["deb"],
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "registryUrls": ["https://archive.ubuntu.com/ubuntu?suite=resolute&components=main&binaryArch=amd64"]
     }
   ],
   "prBodyTemplate": "{{{table}}}",
