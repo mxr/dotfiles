@@ -16,6 +16,8 @@ jobs:
     env:
       # renovate: datasource=github-releases depName=bats-core/bats-core extractVersion=^v(?<version>.+)$
       BATS_VERSION: 1.14.0
+      # renovate: datasource=deb depName=zsh
+      ZSH_VERSION: 5.9-8ubuntu3
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
@@ -23,5 +25,5 @@ jobs:
     - uses: bats-core/bats-action@3566550e0f594451ac0f58fcbfdeca93aa29a45e # 4.1.0
       with:
         bats-version: ${{ env.BATS_VERSION }}
-    - run: sudo apt-get update && sudo apt-get install -y zsh
+    - run: sudo apt-get update && sudo apt-get install -y "zsh=$ZSH_VERSION"
     - run: git ls-files -z '*.bats' | xargs -0 bats
